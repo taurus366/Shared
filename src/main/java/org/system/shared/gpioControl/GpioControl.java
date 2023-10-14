@@ -10,13 +10,17 @@ public class GpioControl {
     final String GPIO_DOOR_CLOSE = "16";
     final String GPIO_LIMITE_SWITCH = "0";
     final String GPIO_LIMITE_SWITCH_PLUS = "1";
-
-    final private String GPIO_COMMAND_READ = "gpio read";
-    final private String GPIO_COMMAND_WRITE = "gpio write";
-    final private String GPIO_COMMAND_MODE = "gpio mode";
+    final static private String GPIO_COMMAND_READ = "gpio read";
+    final static private String GPIO_COMMAND_WRITE = "gpio write";
+    final static private String GPIO_COMMAND_MODE = "gpio mode";
+    final private int SLEEP_TIME_FOR_SENSOR_SWITCH = 5000;
 
 
     public GpioControl() {
+//        setPinMode(Integer.parseInt(GPIO_DOOR_OPEN), "out");
+//        setPinMode(Integer.parseInt(GPIO_DOOR_CLOSE), "out");
+//        setPinMode(Integer.parseInt(GPIO_LIMITE_SWITCH), "in");
+//        setPinMode(Integer.parseInt(GPIO_LIMITE_SWITCH_PLUS), "out");
     }
 
    /**
@@ -61,7 +65,7 @@ public class GpioControl {
      * @param modeInOut
      * @return
      */
-    public boolean setPinMode(int pin, String modeInOut) {
+    private boolean setPinMode(int pin, String modeInOut) {
         try {
             executeCommand(GPIO_COMMAND_MODE + " " + pin + " " + modeInOut.toUpperCase());
             return true;
@@ -78,7 +82,7 @@ public class GpioControl {
      * @param value
      * @return
      */
-    public boolean writePin(int pin, boolean value) {
+    private boolean writePin(int pin, boolean value) {
         try {
             executeCommand(GPIO_COMMAND_WRITE + " " + pin + " " + (value ? "1" : "0"));
             return true;
@@ -100,6 +104,61 @@ public class GpioControl {
             e.printStackTrace();
         }
         return false;
+    }
+
+
+    /**
+     * FIRST save to db that door is attempting to open with timestamp
+     * 1. Open the door
+     * 2. Wait for 5 sec
+     * 3. Check if the switcher is open
+     * 4. If the door is open then stop the motor
+     * LAST save to db that door is open completed with timestamp
+     */
+    public void openDoor() {
+        writePin(Integer.parseInt(GPIO_DOOR_OPEN), true);
+
+        // sleep for 5 sec then continue
+        try {
+            Thread.sleep(SLEEP_TIME_FOR_SENSOR_SWITCH);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        boolean switchStatus = checkPinStatus(Integer.parseInt(GPIO_LIMITE_SWITCH));
+
+        while (!switchStatus) {
+            switchStatus = checkPinStatus(Integer.parseInt(GPIO_LIMITE_SWITCH));
+        }
+
+        writePin(Integer.parseInt(GPIO_DOOR_OPEN), false);
+    }
+
+    /**
+     * FIRST save to db that door is attempting to close with timestamp
+     * 1. Close the door
+     * 2. Wait for 5 sec
+     * 3. Check if the switcher is open
+     * 4. If the door is closed then stop the motor
+     * LAST save to db that door is closed completed with timestamp
+     */
+    public void closeDoor() {
+        writePin(Integer.parseInt(GPIO_DOOR_CLOSE), true);
+
+        // sleep for 5 sec then continue
+        try {
+            Thread.sleep(SLEEP_TIME_FOR_SENSOR_SWITCH);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        boolean switchStatus = checkPinStatus(Integer.parseInt(GPIO_LIMITE_SWITCH_PLUS));
+
+        while (!switchStatus) {
+            switchStatus = checkPinStatus(Integer.parseInt(GPIO_LIMITE_SWITCH_PLUS));
+        }
+
+        writePin(Integer.parseInt(GPIO_DOOR_CLOSE), false);
     }
 
 
