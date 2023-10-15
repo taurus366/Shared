@@ -23,6 +23,7 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>exampledata</artifactId>
