@@ -53,7 +53,7 @@ public class CustomAlert {
         notification.open();
     }
 
-    public static Button createCloseBtn(Notification notification) {
+    private static Button createCloseBtn(Notification notification) {
         Button closeBtn = new Button(VaadinIcon.CLOSE_SMALL.create(),
                 clickEvent -> notification.close());
         closeBtn.addThemeVariants(LUMO_TERTIARY_INLINE);
