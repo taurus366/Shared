@@ -28,7 +28,7 @@ public class GridTable {
 
     public GridTable() {}
 
-    public <T> GridTableDTO<T> getGridTable(Class<T> entity, boolean autoCreateColumn, String... methodNames) {
+    public static  <T> GridTableDTO<T> getGridTable(Class<T> entity, boolean autoCreateColumn, String... methodNames) {
 
         List<String> mNames = null;
         if(methodNames != null) mNames = List.of(methodNames);
