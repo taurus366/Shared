@@ -24,6 +24,7 @@
 
     <dependencies>
 
+
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>exampledata</artifactId>
@@ -101,6 +102,24 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-notification-flow</artifactId>
+            <version>24.3.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-date-picker-flow</artifactId>
+            <version>24.3.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-flow-components-base</artifactId>
+            <version>24.3.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-server</artifactId>
             <version>24.3.2</version>
             <scope>compile</scope>
         </dependency>
