@@ -1,5 +1,6 @@
 package org.system.shared.grid;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -28,7 +29,7 @@ public class GridTable {
 
     public GridTable() {}
 
-    public static  <T> GridTableDTO<T> getGridTable(Class<T> entity, boolean autoCreateColumn, String... methodNames) {
+    private static  <T> GridTableDTO<T> getGridTable(Class<T> entity, boolean autoCreateColumn, boolean customZoneId, ZoneId zoneId, String... methodNames) {
 
         List<String> mNames = null;
         if(methodNames != null) mNames = List.of(methodNames);
@@ -58,7 +59,7 @@ public class GridTable {
 
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN_FORMAT);
                     Instant instant = Instant.parse(rsForReturn.get());
-                    LocalDateTime time = LocalDateTime.ofInstant(instant,  ZoneId.systemDefault());
+                    LocalDateTime time = LocalDateTime.ofInstant(instant,  customZoneId ? zoneId : ZoneId.systemDefault());
                     return time.format(formatter);
                 }));
                 }
@@ -142,5 +143,29 @@ public class GridTable {
             dto.setCancelBtnDialogExistsItem(cancelBtnDialogExistsItem);
             dto.setRemoveBtnDialogExistsItem(removeBtnDialogExistsItem);
         return dto;
+    }
+
+    public static  <T> GridTableDTO<T> getGridTable(Class<T> entity, boolean autoCreateColumn, ZoneId zoneId, String... methodNames) {
+
+       return getGridTable(entity, autoCreateColumn,true, zoneId, methodNames);
+
+    }
+
+    public static  <T> GridTableDTO<T> getGridTable(Class<T> entity, boolean autoCreateColumn, String... methodNames) {
+
+        return getGridTable(entity, autoCreateColumn,false, null, methodNames);
+
+    }
+
+    public static  <T> GridTableDTO<T> getGridTable(Class<T> entity, boolean autoCreateColumn, UI ui, String... methodNames) {
+        AtomicReference<String> zoneId = new AtomicReference<>();
+        System.out.println("TEST");
+        ui.getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
+            System.out.println(extendedClientDetails.getTimeZoneId());
+          zoneId.set(extendedClientDetails.getTimeZoneId());
+        });
+        System.out.println(zoneId.get());
+        return getGridTable(entity, autoCreateColumn,true, ZoneId.of("Europe/Sofia"), methodNames);
+
     }
 }

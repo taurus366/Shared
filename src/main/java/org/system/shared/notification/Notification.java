@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.system.shared.Utils;
 import org.system.shared.model.dto.NotificationDTO;
 import org.system.shared.model.entity.NotificationEntity;
 import org.system.shared.model.service.NotificationsService;
@@ -26,6 +27,7 @@ import java.awt.event.FocusListener;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +43,10 @@ public class Notification{
     @Setter
     @Getter
     private WebBrowser webBrowser;
+
+    @Setter
+    @Getter
+    private ZoneId zoneId;
 
 
 
@@ -67,7 +73,7 @@ public class Notification{
         final List<NotificationEntity> listToday = allNotifications.stream()
                 .filter(notificationEntity -> {
                     Instant createdInstant = notificationEntity.getCreated();
-                    LocalDate createdDate = createdInstant.atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalDate createdDate = createdInstant.atZone(zoneId).toLocalDate();
                     LocalDate today1 = LocalDate.now();
                     return createdDate.equals(today1);
                 })
@@ -86,7 +92,10 @@ public class Notification{
     public Button initUI(Long userId) {
         this.userId = userId;
 
-        LocalDate localDate2 = Instant.now().atZone(ZoneId.systemDefault()).toLocalDate();
+        if(zoneId == null)
+            zoneId = ZoneId.systemDefault();
+
+        LocalDate localDate2 = Instant.now().atZone(zoneId).toLocalDate();
         datePicker = new DatePicker(localDate2);
 
         spanCountNotify = new Span();
@@ -96,8 +105,12 @@ public class Notification{
         spanCountNotify.getElement().getThemeList().addAll(
                 Arrays.asList("badge", "error", "primary", "small", "pill"));
         spanCountNotify.getStyle().set("position", "absolute")
-                .set("transform", "translate(-40%, -85%)");
-
+//                .set("transform", "translate(-40%, -85%)");
+                .set("transform", "translate(-60%, -100%)")
+                .set("font-size", "14px")
+                .set("padding", "3px");
+//font-size: 14px;
+//    padding: 3px;
 
         initNotificationWindow(dateFromDB.getListToday());
 
@@ -133,18 +146,18 @@ public class Notification{
     private  VerticalLayout layoutMain;
     private HorizontalLayout horizontalLayout;
     private void initNotificationWindow(List<NotificationEntity> notifications) {
-        if(notificationWindow != null)
-        notificationWindow.removeFromParent();
-        if(layoutMain != null)
-        layoutMain.removeFromParent();
-        if(horizontalLayout != null)
-        horizontalLayout.removeFromParent();
-        if(iconArrowLeft != null)
-            iconArrowLeft.removeFromParent();
-        if(iconArrowRight != null)
-            iconArrowRight.removeFromParent();
-        if(datePicker != null)
-            datePicker.removeFromParent();
+//        if(notificationWindow != null)
+//        notificationWindow.removeFromParent();
+//        if(layoutMain != null)
+//        layoutMain.removeFromParent();
+//        if(horizontalLayout != null)
+//        horizontalLayout.removeFromParent();
+//        if(iconArrowLeft != null)
+//            iconArrowLeft.removeFromParent();
+//        if(iconArrowRight != null)
+//            iconArrowRight.removeFromParent();
+//        if(datePicker != null)
+//            datePicker.removeFromParent();
 
 
         notificationWindow = new VerticalLayout();
@@ -241,7 +254,9 @@ public class Notification{
                         .set("border-left", "3px solid red");
 
                 Icon timer = VaadinIcon.DATE_INPUT.create();
-                Span time = new Span(entity.getCreated().toString());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Utils.PATTERN_FORMAT);
+
+                Span time = new Span(entity.getCreated().atZone(zoneId).toLocalDateTime().format(formatter));
                 Anchor anchor = new Anchor();
                 anchor.add(timer, time);
                 time.addClassName("notification-time");
@@ -290,7 +305,7 @@ public class Notification{
 
     private void listenForDatePicker(Long userId) {
         datePicker.addValueChangeListener(datePickerEvent -> {
-            Instant newInstant = datePickerEvent.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant();
+            Instant newInstant = datePickerEvent.getValue().atStartOfDay(zoneId).toInstant();
             final List<NotificationEntity> notifyByDate = getAllNotificationsByDateAndUserId(newInstant, userId);
 
                 layoutMain.removeAll();
