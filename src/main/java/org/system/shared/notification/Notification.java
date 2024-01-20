@@ -73,7 +73,8 @@ public class Notification{
         final List<NotificationEntity> listToday = allNotifications.stream()
                 .filter(notificationEntity -> {
                     Instant createdInstant = notificationEntity.getCreated();
-                    LocalDate createdDate = createdInstant.atZone(zoneId).toLocalDate();
+//                    LocalDate createdDate = createdInstant.atZone(zoneId).toLocalDate();
+                    LocalDate createdDate = createdInstant.atZone(ZoneId.of("UTC")).toLocalDate();
                     LocalDate today1 = LocalDate.now();
                     return createdDate.equals(today1);
                 })
@@ -95,7 +96,8 @@ public class Notification{
         if(zoneId == null)
             zoneId = ZoneId.systemDefault();
 
-        LocalDate localDate2 = Instant.now().atZone(zoneId).toLocalDate();
+//        LocalDate localDate2 = Instant.now().atZone(zoneId).toLocalDate();
+        LocalDate localDate2 = Instant.now().atZone(ZoneId.of("UTC")).toLocalDate();
         datePicker = new DatePicker(localDate2);
 
         spanCountNotify = new Span();
@@ -105,12 +107,9 @@ public class Notification{
         spanCountNotify.getElement().getThemeList().addAll(
                 Arrays.asList("badge", "error", "primary", "small", "pill"));
         spanCountNotify.getStyle().set("position", "absolute")
-//                .set("transform", "translate(-40%, -85%)");
                 .set("transform", "translate(-60%, -100%)")
                 .set("font-size", "14px")
                 .set("padding", "3px");
-//font-size: 14px;
-//    padding: 3px;
 
         initNotificationWindow(dateFromDB.getListToday());
 
@@ -305,7 +304,9 @@ public class Notification{
 
     private void listenForDatePicker(Long userId) {
         datePicker.addValueChangeListener(datePickerEvent -> {
-            Instant newInstant = datePickerEvent.getValue().atStartOfDay(zoneId).toInstant();
+//            Instant newInstant = datePickerEvent.getValue().atStartOfDay(zoneId).toInstant();
+            Instant newInstant = datePickerEvent.getValue().atStartOfDay(ZoneId.of("UTC")).toInstant();
+
             final List<NotificationEntity> notifyByDate = getAllNotificationsByDateAndUserId(newInstant, userId);
 
                 layoutMain.removeAll();
